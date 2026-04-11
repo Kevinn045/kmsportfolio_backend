@@ -3,41 +3,35 @@ from openai import OpenAI
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Project, Visitor
-from .serializers import ProjectSerializer
+from .models import Blog, Project, Visitor
+from .serializers import BlogSerializer, ProjectSerializer
 from django.core.mail import send_mail
 
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 @api_view(['POST'])
-def chatbot(request):
+def ai_chat(request):
     user_message = request.data.get("message")
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {
-                "role": "system",
-                "content": """
-            You are the personal AI assistant of a Full Stack Developer.
+            {"role": "system", "content": """
+            You are an AI assistant for a developer portfolio.
 
-            Your job:
-            - Help recruiters and clients learn about the developer
-            - Explain skills clearly and confidently
-            - Highlight projects in a professional way
+            Developer Info:
+            - Name: Your Name
+            - Skills: Django, React, Python, AI
+            - Projects: Portfolio, API systems, dashboards
 
-            Developer stack:
-            React, Django, Python, REST APIs, Bootstrap
-
-            Tone:
-            Professional, confident, short, and clear."""
-            },
-            {
-                "role": "user",
-                "content": user_message
-            },
+            Answer professionally and concisely.
+            """},
+            {"role": "user", "content": user_message}
         ]
     )
 
