@@ -47,7 +47,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["kmsportfolio-back.onrender.com"]
 
-
+CORS_ALLOWED_ORIGINS = [
+    "https://kmsportfolio-frontend.vercel.app",
+]
+CORS_ALLOW_CREDENTIALS = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -73,7 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'backend.urls'
 
