@@ -17,11 +17,16 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 @api_view(['POST'])
 def ai_chat(request):
     user_message = request.data.get("message")
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": """
+    history = request.data.get("history", [])
+    projects = Project.objects.all()
+    blogs = Blog.objects.all()
+    project_list = "\n".join(
+        [f"- {p.title}: {p.description}" for p in projects])
+    blog_list = "\n".join([f"- {b.title}" for b in blogs])
+    messages = [
+        {
+            "role": "system",
+            "content": f"""
             You are an AI assistant for a developer portfolio.
 
             Developer Info:
@@ -29,10 +34,25 @@ def ai_chat(request):
             - Skills: Django, React, Python, AI
             - Projects: Portfolio, API systems, dashboards
 
+            Projects:
+            {project_list}
+
+            Blog Posts:
+            {blog_list}
+
             Answer professionally and concisely.
-            """},
-            {"role": "user", "content": user_message}
-        ]
+            """
+        }
+    ]
+    for msg in history:
+        messages.append(msg)
+
+    # add current message
+    messages.append({"role": "user", "content": user_message})
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages  # type: ignore
     )
 
     reply = response.choices[0].message.content
