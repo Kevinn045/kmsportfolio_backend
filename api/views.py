@@ -84,7 +84,7 @@ def contact(request):
         f"Message from {name}",
         message,
         email,
-        ['your@email.com'],
+        ['kevinmuse45@gmail.com'],
     )
 
     return Response({"success": True})
