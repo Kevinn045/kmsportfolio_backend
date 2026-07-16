@@ -4,6 +4,8 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from .views import profile
+
 urlpatterns = [
     path('projects/', get_projects),
     path('add-project/', add_project),
@@ -13,4 +15,5 @@ urlpatterns = [
     path('blog/', get_blog),
     path('track/', track_visit)
     path('refresh/', TokenRefreshView.as_view()),
+    path('profile/', profile),
 ]
