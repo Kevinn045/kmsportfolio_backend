@@ -30,7 +30,7 @@ def ai_chat(request):
             You are an AI assistant for a developer portfolio.
 
             Developer Info:
-            - Name: Your Name
+            - Name: kevin muse
             - Skills: Django, React, Python, AI
             - Projects: Portfolio, API systems, dashboards
 
