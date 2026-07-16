@@ -6,14 +6,23 @@ from rest_framework.response import Response
 from .models import Blog, Project, Visitor
 from .serializers import BlogSerializer, ProjectSerializer
 from django.core.mail import send_mail
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from openai import OpenAI
 import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile(request):
+    return Response({
+        "username": request.user.username,
+        "email": request.user.email,
+        "is_staff": request.user.is_staff,
+    })
 @api_view(['POST'])
 def ai_chat(request):
     user_message = request.data.get("message")
