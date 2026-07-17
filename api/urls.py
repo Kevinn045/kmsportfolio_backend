@@ -13,7 +13,7 @@ urlpatterns = [
     path('contact/', contact),
     path('chat/', ai_chat),
     path('blog/', get_blog),
-    path('track/', track_visit)
+    path('track/', track_visit),
     path('refresh/', TokenRefreshView.as_view()),
     path('profile/', profile),
 ]
