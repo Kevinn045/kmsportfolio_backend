@@ -78,7 +78,10 @@ def get_projects(request):
     projects = Project.objects.all()
     serializer = ProjectSerializer(projects, many=True)
 
-return Response(serializer.data)
+return Response(
+    serializer.data,
+    status=status.HTTP_201_CREATED
+)
 
 
 @api_view(['POST'])
@@ -87,7 +90,10 @@ def add_project(request):
     serializer = ProjectSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
     return Response(
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
@@ -123,6 +129,9 @@ def get_blog(request):
 
 @api_view(['GET'])
 def track_visit(request):
-    ip = request.META.get('REMOTE_ADDR')
+    ip = request.META.get(
+        "HTTP_X_FORWARDED_FOR",
+        request.META.get("REMOTE_ADDR")
+    )
     Visitor.objects.create(ip_address=ip)
     return Response({"status": "tracked"})
