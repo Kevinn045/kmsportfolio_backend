@@ -105,11 +105,11 @@ def contact(request):
    email = request.data.get("email")
    message = request.data.get("message")
 
-if not all([name, email, message]):
-    return Response(
+   if not all([name, email, message]):
+     return Response(
         {"error": "All fields are required."},
         status=status.HTTP_400_BAD_REQUEST,
-    )
+        )
 
     send_mail(
         f"Message from {name}",
