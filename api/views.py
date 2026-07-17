@@ -103,7 +103,7 @@ def add_project(request):
 def contact(request):
    name = request.data.get("name")
    email = request.data.get("email")
-  message = request.data.get("message")
+   message = request.data.get("message")
 
 if not all([name, email, message]):
     return Response(
