@@ -101,14 +101,14 @@ def add_project(request):
 
 @api_view(['POST'])
 def contact(request):
-   name = request.data.get("name")
-   email = request.data.get("email")
-   message = request.data.get("message")
+    name = request.data.get("name")
+    email = request.data.get("email")
+    message = request.data.get("message")
 
-   if not all([name, email, message]):
-     return Response(
-        {"error": "All fields are required."},
-        status=status.HTTP_400_BAD_REQUEST,
+    if not all([name, email, message]):
+        return Response(
+            {"error": "All fields are required."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     send_mail(
