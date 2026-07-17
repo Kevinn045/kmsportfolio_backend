@@ -78,10 +78,10 @@ def get_projects(request):
     projects = Project.objects.all()
     serializer = ProjectSerializer(projects, many=True)
 
-return Response(
-    serializer.data,
-    status=status.HTTP_201_CREATED
-)
+    return Response(
+        serializer.data,
+        status=status.HTTP_201_CREATED
+    )
 
 
 @api_view(['POST'])
