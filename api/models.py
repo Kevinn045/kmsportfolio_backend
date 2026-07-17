@@ -29,8 +29,12 @@ class Blog(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
-
-
+    image = models.ImageField(upload_to="blogs/", blank=True)
+    updated = models.DateTimeField(auto_now=True)
+    
 class Visitor(models.Model):
     ip_address = models.GenericIPAddressField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    browser = models.CharField(max_length=100, blank=True)
+    device = models.CharField(max_length=100, blank=True)
+    page = models.CharField(max_length=200, blank=True)
