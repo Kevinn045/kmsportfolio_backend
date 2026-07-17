@@ -1,17 +1,16 @@
+import os
+
 from django.core.mail import send_mail
 from openai import OpenAI
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework import status
+
 from .models import Blog, Project, Visitor
 from .serializers import BlogSerializer, ProjectSerializer
-from django.core.mail import send_mail
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from openai import OpenAI
-import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -59,9 +58,15 @@ def ai_chat(request):
     # add current message
     messages.append({"role": "user", "content": user_message})
 
-    response = client.chat.completions.create(
+    try:
+        response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages  # type: ignore
+    )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
     reply = response.choices[0].message.content
@@ -70,7 +75,10 @@ def ai_chat(request):
 
 @api_view(['GET'])
 def get_projects(request):
-    return Response(ProjectSerializer(Project.objects.all(), many=True).data)
+    projects = Project.objects.all()
+    serializer = ProjectSerializer(projects, many=True)
+
+return Response(serializer.data)
 
 
 @api_view(['POST'])
@@ -80,14 +88,22 @@ def add_project(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
-    return Response(serializer.errors)
-
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 @api_view(['POST'])
 def contact(request):
-    name = request.data['name']
-    email = request.data['email']
-    message = request.data['message']
+   name = request.data.get("name")
+   email = request.data.get("email")
+  message = request.data.get("message")
+
+if not all([name, email, message]):
+    return Response(
+        {"error": "All fields are required."},
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
     send_mail(
         f"Message from {name}",
