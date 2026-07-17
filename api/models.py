@@ -6,7 +6,11 @@ class Project(models.Model):
     description = models.TextField()
     link = models.URLField()
     image = models.ImageField(upload_to='projects/', null=True, blank=True)
-
+    technologies = models.CharField(max_length=255)
+    github = models.URLField(blank=True)
+    live_demo = models.URLField(blank=True)
+    class Meta:
+       ordering = ['-id']
     def __str__(self):
         return self.title
 
