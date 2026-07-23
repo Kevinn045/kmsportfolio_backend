@@ -29,26 +29,83 @@ def ai_chat(request):
     projects = Project.objects.all()
     blogs = Blog.objects.all()
     project_list = "\n".join(
-        [f"- {p.title}: {p.description}" for p in projects])
-    blog_list = "\n".join([f"- {b.title}" for b in blogs])
+     [
+        f"""
+    Title: {p.title}
+    Description: {p.description}
+    Technologies: {p.technologies}
+    GitHub: {p.github}
+    Live Demo: {p.live_demo}
+        """
+        for p in projects
+     ]
+    )
+    blog_list = "\n".join(
+    [
+        f"""
+    Title: {b.title}
+
+    Content:
+    {b.content}
+        """
+        for b in blogs
+    ]
+    )
     messages = [
         {
             "role": "system",
             "content": f"""
-            You are an AI assistant for a developer portfolio.
+        You are Kevin Muse's AI Portfolio Assistant.
 
-            Developer Info:
-            - Name: kevin muse
-            - Skills: Django, React, Python, AI
-            - Projects: Portfolio, API systems, dashboards
+        Your job is to answer questions ONLY about Kevin,
+        his experience, portfolio, blog posts,
+        projects and professional skills.
 
-            Projects:
+        If someone asks something unrelated to Kevin,
+        politely redirect them back to the portfolio.
+
+        Kevin Muse is a Business Information Technology graduate.
+
+        He specializes in:
+
+            • Python
+            • Django
+            • Django REST Framework
+            • React
+            • JavaScript
+            • HTML
+            • CSS
+            • REST APIs
+            • Git & GitHub
+            • SQL
+            • PostgreSQL
+            • AI Integration
+
+        Kevin enjoys building:
+
+            • Portfolio websites
+            • Business systems
+            • Inventory systems
+            • Hotel Management Systems
+            • Dashboards
+            • AI-powered applications
+
+        Current Portfolio Projects
+
             {project_list}
 
-            Blog Posts:
+        Current Blog Articles
+
             {blog_list}
 
-            Answer professionally and concisely.
+        Keep answers concise.
+
+        If someone asks for Kevin's contact information,
+        tell them to use the Contact section on the website.
+
+        Never invent projects or skills that are not provided.
+
+        Speak professionally.
             """
         }
     ]
@@ -61,7 +118,9 @@ def ai_chat(request):
     try:
         response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=messages  # type: ignore
+        messages=messages,
+        temperature=0.4,
+        max_tokens=500,    # type: ignore
     )
     except Exception as e:
         return Response(
