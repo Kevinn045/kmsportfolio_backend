@@ -123,10 +123,17 @@ def ai_chat(request):
         max_tokens=500,    # type: ignore
     )
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
+     import traceback
+
+     print("========== AI CHAT ERROR ==========")
+     print(str(e))
+     traceback.print_exc()
+     print("===================================")
+
+     return Response(
+        {"error": str(e)},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+     )
 
     reply = response.choices[0].message.content
     return Response({"reply": reply})
