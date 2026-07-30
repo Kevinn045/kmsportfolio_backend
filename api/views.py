@@ -25,118 +25,41 @@ def profile(request):
 @api_view(['POST'])
 def ai_chat(request):
     user_message = request.data.get("message")
-    history = request.data.get("history", [])
-    projects = Project.objects.all()
-    blogs = Blog.objects.all()
-    project_list = "\n".join(
-     [
-        f"""
-    Title: {p.title}
-    Description: {p.description}
-    Technologies: {p.technologies}
-    GitHub: {p.github}
-    Live Demo: {p.live_demo}
-        """
-        for p in projects
-     ]
-    )
-    blog_list = "\n".join(
-    [
-        f"""
-    Title: {b.title}
 
-    Content:
-    {b.content}
-        """
-        for b in blogs
-    ]
-    )
-    messages = [
-        {
-            "role": "system",
-            "content": f"""
-        You are Kevin Muse's AI Portfolio Assistant.
-
-        Your job is to answer questions ONLY about Kevin,
-        his experience, portfolio, blog posts,
-        projects and professional skills.
-
-        If someone asks something unrelated to Kevin,
-        politely redirect them back to the portfolio.
-
-        Kevin Muse is a Business Information Technology graduate.
-
-        He specializes in:
-
-            • Python
-            • Django
-            • Django REST Framework
-            • React
-            • JavaScript
-            • HTML
-            • CSS
-            • REST APIs
-            • Git & GitHub
-            • SQL
-            • PostgreSQL
-            • AI Integration
-
-        Kevin enjoys building:
-
-            • Portfolio websites
-            • Business systems
-            • Inventory systems
-            • Hotel Management Systems
-            • Dashboards
-            • AI-powered applications
-
-        Current Portfolio Projects
-
-            {project_list}
-
-        Current Blog Articles
-
-            {blog_list}
-
-        Keep answers concise.
-
-        If someone asks for Kevin's contact information,
-        tell them to use the Contact section on the website.
-
-        Never invent projects or skills that are not provided.
-
-        Speak professionally.
-            """
-        }
-    ]
-    for msg in history:
-        messages.append(msg)
-
-    # add current message
-    messages.append({"role": "user", "content": user_message})
+    if not user_message:
+        return Response(
+            {"error": "Message is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        temperature=0.4,
-        max_tokens=500,    # type: ignore
-    )
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are Kevin Muse's portfolio assistant."
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ],
+        )
+
+        reply = response.choices[0].message.content
+
+        return Response({
+            "reply": reply
+        })
+
     except Exception as e:
-     import traceback
+        print("AI CHAT ERROR:", repr(e))
 
-     print("========== AI CHAT ERROR ==========")
-     print(str(e))
-     traceback.print_exc()
-     print("===================================")
-
-     return Response(
-        {"error": str(e)},
-        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-     )
-
-    reply = response.choices[0].message.content
-    return Response({"reply": reply})
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(['GET'])
