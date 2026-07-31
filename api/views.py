@@ -36,19 +36,72 @@ def ai_chat(request):
         )
 
     try:
+        # Get portfolio projects
+        projects = Project.objects.all()
+
+        project_context = "\n".join([f"""
+Project: {project.title}
+Description: {project.description}
+Technologies: {project.technologies}
+GitHub: {project.github}
+Live Demo: {project.live_demo}
+""" for project in projects])
+
+        # Get portfolio blog posts
+        blogs = Blog.objects.all()
+
+        blog_context = "\n".join([f"""
+Blog Title: {blog.title}
+Content: {blog.content}
+""" for blog in blogs])
+
+        # Give Gemini the actual portfolio information
+        portfolio_context = f"""
+PROJECTS
+========
+{project_context if project_context else "No projects available."}
+
+BLOG POSTS
+==========
+{blog_context if blog_context else "No blog posts available."}
+"""
+
         response = gemini_client.models.generate_content(
             model="gemini-3.6-flash",
             contents=f"""
-You are Kevin Muse's portfolio assistant.
+You are Kevin Muse's AI Portfolio Assistant.
 
 Your job is to answer questions about Kevin Muse,
-his portfolio, projects, skills, education, and experience.
+his portfolio, projects, blog posts, skills, education,
+and professional experience.
 
-If the question is unrelated to Kevin Muse or his portfolio,
-politely explain that you can only answer questions about Kevin
-and his professional portfolio.
+IMPORTANT RULES:
 
-User question:
+1. Use the portfolio information provided below as your
+   primary source of truth.
+
+2. Do NOT invent projects, technologies, experience,
+   education, links, or other information about Kevin.
+
+3. If the requested information isn't contained in the
+   portfolio data, say that the information isn't currently
+   available in Kevin's portfolio.
+
+4. If someone asks something unrelated to Kevin Muse or
+   his portfolio, politely redirect them back to Kevin's
+   portfolio.
+
+5. When mentioning a project, use the actual project name
+   from the portfolio data.
+
+PORTFOLIO DATA
+==============
+
+{portfolio_context}
+
+USER QUESTION
+=============
+
 {user_message}
 """,
         )
