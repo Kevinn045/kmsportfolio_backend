@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 from .models import Blog, Project, Visitor
 from .serializers import BlogSerializer, ProjectSerializer
@@ -161,6 +162,14 @@ def contact(request):
 def get_blog(request):
     blogs = Blog.objects.all().order_by("-created")
     return Response(BlogSerializer(blogs, many=True).data)
+
+
+@api_view(["GET"])
+def get_blog_post(request, pk):
+    post = get_object_or_404(Blog, pk=pk)
+    serializer = BlogSerializer(post)
+
+    return Response(serializer.data)
 
 
 @api_view(["GET"])
