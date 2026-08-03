@@ -136,6 +136,29 @@ def add_project(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["PATCH", "PUT", "DELETE"])
+@permission_classes([IsAuthenticated])
+def manage_project(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+
+    if request.method in ["PATCH", "PUT"]:
+        serializer = ProjectSerializer(project, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == "DELETE":
+        project.delete()
+
+        return Response(
+            {"message": "Project deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+
 @api_view(["POST"])
 def contact(request):
     name = request.data.get("name")
