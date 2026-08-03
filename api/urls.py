@@ -7,6 +7,8 @@ from .views import (
     get_blog_post,
     get_projects,
     track_visit,
+    add_blog,
+    manage_blog,
 )
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -25,4 +27,6 @@ urlpatterns = [
     path("track/", track_visit),
     path("refresh/", TokenRefreshView.as_view()),
     path("profile/", profile),
+    path("blog/add/", add_blog),
+    path("blog/<int:pk>/manage/", manage_blog),
 ]

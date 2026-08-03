@@ -172,6 +172,45 @@ def get_blog_post(request, pk):
     return Response(serializer.data)
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def add_blog(request):
+    serializer = BlogSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["PUT", "PATCH", "DELETE"])
+@permission_classes([IsAuthenticated])
+def manage_blog(request, pk):
+    post = get_object_or_404(Blog, pk=pk)
+
+    # UPDATE
+    if request.method in ["PUT", "PATCH"]:
+        serializer = BlogSerializer(
+            post, data=request.data, partial=request.method == "PATCH"
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE
+    if request.method == "DELETE":
+        post.delete()
+
+        return Response(
+            {"message": "Blog post deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+
 @api_view(["GET"])
 def track_visit(request):
     ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
