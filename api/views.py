@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from .models import Blog, Project, Visitor
-from .serializers import BlogSerializer, ProjectSerializer
+from .models import Blog, Project, Visitor, Contact
+from .serializers import BlogSerializer, ProjectSerializer, ContactSerializer
 
 gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -179,6 +179,39 @@ def contact(request):
     )
 
     return Response({"success": True})
+
+
+@api_view(["GET", "PATCH", "DELETE"])
+@permission_classes([IsAuthenticated])
+def manage_contacts(request, pk=None):
+
+    # GET all messages
+    if request.method == "GET" and pk is None:
+        contacts = Contact.objects.all().order_by("-created")
+        serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data)
+
+    # Get one message
+    contact = get_object_or_404(Contact, pk=pk)
+
+    # Mark as read/unread
+    if request.method == "PATCH":
+        serializer = ContactSerializer(contact, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete
+    if request.method == "DELETE":
+        contact.delete()
+
+        return Response(
+            {"message": "Message deleted successfully."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 @api_view(["GET"])
