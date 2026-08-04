@@ -1,4 +1,4 @@
-from django.contrib.messages.api import get_messages
+from .views import get_messages
 from django.urls import path
 from .views import (
     add_project,

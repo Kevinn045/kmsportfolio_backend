@@ -215,6 +215,15 @@ def manage_contacts(request, pk=None):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_messages(request):
+    messages = Contact.objects.all().order_by("-created")
+    serializer = ContactSerializer(messages, many=True)
+
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
 def get_blog(request):
     blogs = Blog.objects.all().order_by("-created")
     return Response(BlogSerializer(blogs, many=True).data)
