@@ -1,4 +1,4 @@
-from .views import get_messages
+from .views import get_messages, mark_message_read
 from django.urls import path
 from .views import (
     add_project,
@@ -26,6 +26,7 @@ urlpatterns = [
     path("login/", TokenObtainPairView.as_view()),
     path("contact/", contact),
     path("messages/", get_messages),
+    path("messages/<int:pk>/read/", mark_message_read),
     path("messages/<int:pk>/", manage_contacts),
     path("chat/", ai_chat),
     path("blog/", get_blog),

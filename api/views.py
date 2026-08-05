@@ -237,6 +237,27 @@ def get_messages(request):
     return Response(serializer.data)
 
 
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def mark_message_read(request, pk):
+    message = get_object_or_404(Contact, pk=pk)
+
+    is_read = request.data.get("is_read")
+
+    if not isinstance(is_read, bool):
+        return Response(
+            {"error": "is_read must be true or false."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    message.is_read = is_read
+    message.save()
+
+    serializer = ContactSerializer(message)
+
+    return Response(serializer.data)
+
+
 @api_view(["GET"])
 def get_blog(request):
     blogs = Blog.objects.all().order_by("-created")
