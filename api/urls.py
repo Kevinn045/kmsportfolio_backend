@@ -1,4 +1,5 @@
 from .views import get_messages, mark_message_read
+from .views import analytics
 from django.urls import path
 from .views import (
     add_project,
@@ -36,4 +37,5 @@ urlpatterns = [
     path("track/", track_visit),
     path("refresh/", TokenRefreshView.as_view()),
     path("profile/", profile),
+    path("analytics/", analytics),
 ]

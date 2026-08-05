@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 from .models import Blog, Project, Visitor, Contact
 from .serializers import BlogSerializer, ProjectSerializer, ContactSerializer
@@ -316,3 +317,28 @@ def track_visit(request):
     ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
     Visitor.objects.create(ip_address=ip)
     return Response({"status": "tracked"})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def analytics(request):
+    total_visitors = Visitor.objects.count()
+
+    total_projects = Project.objects.count()
+
+    total_blogs = Blog.objects.count()
+
+    visitors_by_day = (
+        Visitor.objects.values("timestamp__date")
+        .annotate(count=Count("id"))
+        .order_by("timestamp__date")
+    )
+
+    return Response(
+        {
+            "total_visitors": total_visitors,
+            "total_projects": total_projects,
+            "total_blogs": total_blogs,
+            "visitors_by_day": visitors_by_day,
+        }
+    )
