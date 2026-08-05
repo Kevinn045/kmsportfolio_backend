@@ -171,14 +171,28 @@ def contact(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    send_mail(
-        f"Message from {name}",
-        message,
-        email,
-        ["kevinmuse45@gmail.com"],
+    # Save message to database
+    Contact.objects.create(
+        name=name,
+        email=email,
+        message=message,
     )
 
-    return Response({"success": True})
+    # Send email notification
+    try:
+        send_mail(
+            f"Message from {name}",
+            message,
+            email,
+            ["kevinmuse45@gmail.com"],
+        )
+    except Exception as e:
+        print("Email error:", e)
+
+    return Response(
+        {"success": True},
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["GET", "PATCH", "DELETE"])
