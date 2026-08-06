@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
+from django.utils import timezone
 
 from .models import Blog, Project, Visitor, Contact
 from .serializers import BlogSerializer, ProjectSerializer, ContactSerializer
@@ -315,7 +316,14 @@ def manage_blog(request, pk):
 @api_view(["GET"])
 def track_visit(request):
     ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
-    Visitor.objects.create(ip_address=ip)
+
+    today = timezone.now().date()
+
+    exists = Visitor.objects.filter(ip_address=ip, timestamp__date=today).exists()
+
+    if not exists:
+        Visitor.objects.create(ip_address=ip)
+
     return Response({"status": "tracked"})
 
 
