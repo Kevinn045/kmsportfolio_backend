@@ -313,13 +313,22 @@ def manage_blog(request, pk):
         )
 
 
+
 @api_view(["GET"])
 def track_visit(request):
-    ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR")
 
     today = timezone.now().date()
 
-    exists = Visitor.objects.filter(ip_address=ip, timestamp__date=today).exists()
+    exists = Visitor.objects.filter(
+        ip_address=ip,
+        timestamp__date=today
+    ).exists()
 
     if not exists:
         Visitor.objects.create(ip_address=ip)
